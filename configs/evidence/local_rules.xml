@@ -1,0 +1,9 @@
+<group name="local_rules,">
+  <rule id="100001" level="12">
+    <if_matched_sid>18130</if_matched_sid>
+    <description>ALERTA CRITICO: Ataque de Brute Force Detectado no Windows (Lab)</description>
+    <mitre>
+      <id>T1110</id>
+    </mitre>
+  </rule>
+</group>
