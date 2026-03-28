@@ -20,6 +20,46 @@ Utilizei o **Hydra** no Kali Linux para simular um ataque de força bruta contra
 O ataque gerou múltiplos eventos de falha de login (Event ID 4625). O Wazuh correlacionou esses logs e aplicou as seguintes técnicas do framework MITRE ATT&CK:
 - **T1110 (Brute Force)**
 - **T1078 (Valid Accounts)**
+### 💎 Evidência Técnica: Estrutura do Alerta (JSON Payload)
+Abaixo, apresento o log bruto processado pelo Wazuh. Note a extração precisa do IP do atacante (`10.0.0.3`) e a correlação com a técnica **MITRE T1110**.
+
+<details>
+<summary>📂 Clique para expandir o JSON completo</summary>
+
+```json
+{
+  "agent": {
+    "ip": "10.0.0.2",
+    "name": "DESKTOP-P94DDFF",
+    "id": "001"
+  },
+  "data": {
+    "win": {
+      "eventdata": {
+        "ipAddress": "10.0.0.3",
+        "targetUserName": "adminstrator",
+        "workstationName": "kali",
+        "status": "0xc000006d"
+      },
+      "system": {
+        "eventID": "4625",
+        "severityValue": "AUDIT_FAILURE",
+        "computer": "DESKTOP-P94DDFF"
+      }
+    }
+  },
+  "rule": {
+    "level": 10,
+    "description": "Multiple Windows logon failures.",
+    "id": "60204",
+    "mitre": {
+      "technique": ["Brute Force"],
+      "id": ["T1110"],
+      "tactic": ["Credential Access"]
+    }
+  },
+  "@timestamp": "2026-03-28T14:21:37.733Z"
+}
 
 ![Alerta de Ataque Brute Force no Dashboard](evidence/ataque%20brute%20force%203.PNG)
 
@@ -48,3 +88,5 @@ Utilizando a ferramenta `wazuh-logtest`, confirmei que o motor de análise agora
 - [ ] Implementar **Active Response** para banir automaticamente o IP de origem no Firewall do Windows.
 - [ ] Integrar logs de Sysmon para maior visibilidade de processos suspeitos.
 - [ ] Estudar cenários de detecção no **TryHackMe** e **LetsDefend**.
+
+
