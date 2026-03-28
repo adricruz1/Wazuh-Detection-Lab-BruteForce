@@ -15,11 +15,6 @@ Este projeto demonstra a implementação de um ambiente de monitoramento de segu
 Utilizei o **Hydra** no Kali Linux para simular um ataque de força bruta contra o serviço SMB do Windows. O objetivo foi validar se o Wazuh capturaria a telemetria necessária para identificar o comportamento anômalo.
 
 ![Visão Geral do Dashboard no Momento do Ataque](evidence/Dashboard.PNG)
-
-### Detecção Inicial (Logs de Falha):
-O ataque gerou múltiplos eventos de falha de login (Event ID 4625). O Wazuh correlacionou esses logs e aplicou as seguintes técnicas do framework MITRE ATT&CK:
-- **T1110 (Brute Force)**
-- **T1078 (Valid Accounts)**
 ### 💎 Evidência Técnica: Estrutura do Alerta (JSON Payload)
 Abaixo, apresento o log bruto processado pelo Wazuh. Note a extração precisa do IP do atacante (`10.0.0.3`) e a correlação com a técnica **MITRE T1110**.
 
@@ -60,6 +55,12 @@ Abaixo, apresento o log bruto processado pelo Wazuh. Note a extração precisa d
   },
   "@timestamp": "2026-03-28T14:21:37.733Z"
 }
+---
+
+### Detecção Inicial (Logs de Falha):
+O ataque gerou múltiplos eventos de falha de login (Event ID 4625). O Wazuh correlacionou esses logs e aplicou as seguintes técnicas do framework MITRE ATT&CK:
+- **T1110 (Brute Force)**
+- **T1078 (Valid Accounts)**
 
 ![Alerta de Ataque Brute Force no Dashboard](evidence/ataque%20brute%20force%203.PNG)
 
