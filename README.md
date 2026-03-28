@@ -69,3 +69,19 @@ Para um Analista de SOC, a análise do JSON é fundamental para entender os camp
   },
   "@timestamp": "2026-03-28T14:21:37.733Z"
 }
+
+🛠️ Engenharia de Detecção (Customização de Rules)
+Um dos grandes desafios deste projeto foi a criação de uma regra personalizada no local_rules.xml para elevar a criticidade do evento de Nível 10 para o Nível 12 (Crítico).
+
+🔧 Desafios de Troubleshooting
+Durante a implementação, enfrentei erros de sintaxe XML que impediram o reinício do serviço do Wazuh. A resolução envolveu o uso de ferramentas de diagnóstico do sistema (wazuh-analysisd -t) e correção de tags de fechamento.
+
+✅ Validação Final (Wazuh-Logtest)
+Utilizando a ferramenta wazuh-logtest, confirmei que o motor de análise agora identifica o ataque sob a nova regra ID 100001 com Level 12, garantindo prioridade máxima no monitoramento e alertas vermelhos no Dashboard.
+
+📈 Próximos Passos
+[ ] Active Response: Configurar o bloqueio automático (ban) do IP do atacante no Firewall do Windows.
+
+[ ] Sysmon Integration: Refinar a visibilidade de processos e eventos de rede no Windows.
+
+[ ] Continuous Learning: Continuar o aprofundamento em plataformas como TryHackMe e LetsDefend para novos cenários de ameaças.
