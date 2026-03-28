@@ -24,7 +24,7 @@ O ataque gerou múltiplos eventos de falha de login (**Event ID 4625**). O Wazuh
 * **T1110 (Brute Force)**
 * **T1078 (Valid Accounts)**
 
-![Alerta de Ataque Brute Force no Dashboard](ataque-brute-force-01.png)
+![Alerta de Ataque Brute Force no Dashboard](ataque-brute-force-02.jpg)
 
 ---
 
