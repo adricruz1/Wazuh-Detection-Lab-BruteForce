@@ -29,7 +29,7 @@ Construir um laboratório de Blue Team capaz de:
 
 # 🏗️ Arquitetura
 
-[Arquitetura](configs/evidence/architecture.png)
+![Arquitetura](evidence/architecture.png)
 
 ---
 
