@@ -1,39 +1,82 @@
-# 🛡️ SIEM Lab: Detecção de Ataques de Força Bruta com Wazuh
+# 🛡️ Wazuh Detection Lab - Brute Force Detection (MITRE T1110)
 
-Este projeto demonstra a implementação de um ambiente de monitoramento de segurança (SIEM) para detectar, analisar e elevar a criticidade de tentativas de invasão via **Brute Force (T1110)** em endpoints Windows 10.
-
----
-
-## 🏗️ Topologia do Laboratório
-
-* **SIEM:** Wazuh Manager (Ubuntu Server 22.04)
-* **Endpoint:** Windows 10 Pro (Wazuh Agent)
-* **Atacante:** Kali Linux (Hydra)
+Laboratório de Segurança da Informação desenvolvido para demonstrar a implementação de um ambiente SIEM utilizando **Wazuh**, simulando ataques de força bruta contra um endpoint Windows e criando regras personalizadas para aumentar a criticidade dos alertas.
 
 ---
 
-## ⚔️ Simulação do Incidente (Ataque)
+# 🎯 Objetivo
 
-Utilizei o **Hydra** no Kali Linux para simular um ataque de força bruta contra o serviço SMB do Windows. O objetivo foi validar se o Wazuh capturaria a telemetria necessária para identificar o comportamento anômalo em tempo real.
+Construir um laboratório de Blue Team capaz de:
 
-![Visão Geral do Dashboard no Momento do Ataque](dashboard-wazuh.png)
-
-### 🕵️ Detecção e Mapeamento MITRE ATT&CK
-
-O ataque gerou múltiplos eventos de falha de login (**Event ID 4625**). O Wazuh correlacionou esses logs automaticamente com as técnicas:
-* **T1110 (Brute Force)**
-* **T1078 (Valid Accounts)**
-
-![Alerta de Ataque Brute Force no Dashboard](ataque-brute-force-02.jpg)
+- Detectar ataques Brute Force
+- Monitorar eventos do Windows
+- Correlacionar eventos utilizando MITRE ATT&CK
+- Criar regras personalizadas
+- Validar alertas utilizando Wazuh Logtest
+- Demonstrar o fluxo completo de detecção em um ambiente controlado
 
 ---
 
-## 💎 Evidência Técnica: Estrutura do Alerta (JSON Payload)
+# 🖥️ Ambiente do Laboratório
 
-Para um Analista de SOC, a análise do JSON é fundamental para entender os campos extraídos e criar automações. Abaixo, o log bruto onde identificamos o IP do atacante (`10.0.0.3`) e a workstation de origem (`kali`).
+| Máquina | Função |
+|----------|--------|
+| Ubuntu Server 22.04 | Wazuh Manager + Indexer + Dashboard |
+| Windows 10 | Endpoint Monitorado (Agent) |
+| Kali Linux | Máquina atacante utilizando Hydra |
 
-<details>
-  <summary>📂 Clique para expandir o JSON completo</summary>
+---
+
+# 🏗️ Arquitetura
+
+![Arquitetura](configs/evidence/architecture.png)
+
+---
+
+# 🔥 Cenário Simulado
+
+Foi realizado um ataque de força bruta utilizando a ferramenta **Hydra**, executada a partir da máquina Kali Linux contra o serviço SMB do Windows 10.
+
+O objetivo foi validar a capacidade do Wazuh em:
+
+- detectar tentativas de autenticação inválidas;
+- correlacionar eventos;
+- classificar o ataque segundo MITRE ATT&CK;
+- gerar alertas em tempo real.
+
+---
+
+# 📊 Dashboard do Wazuh
+
+![Dashboard](configs/evidence/dashboard-wazuh.png)
+
+O Dashboard permitiu visualizar:
+
+- quantidade de eventos
+- alertas críticos
+- autenticações com falha
+- autenticações bem sucedidas
+- eventos por agente
+- técnicas MITRE ATT&CK
+
+---
+
+# 🚨 Evidências do Ataque
+
+Durante o ataque foram identificados eventos:
+
+- Event ID 4625
+- Rule 60204
+- Technique T1110 (Brute Force)
+- Technique T1078 (Valid Accounts)
+
+![Ataque](configs/evidence/ataque-brute-force-02.jpg)
+
+---
+
+# 📄 Evidência em JSON
+
+Abaixo está um exemplo do evento capturado pelo Wazuh.
 
 ```json
 {
@@ -46,14 +89,13 @@ Para um Analista de SOC, a análise do JSON é fundamental para entender os camp
     "win": {
       "eventdata": {
         "ipAddress": "10.0.0.3",
-        "targetUserName": "adminstrator",
+        "targetUserName": "administrator",
         "workstationName": "kali",
         "status": "0xc000006d"
       },
       "system": {
         "eventID": "4625",
-        "severityValue": "AUDIT_FAILURE",
-        "computer": "DESKTOP-P94DDFF"
+        "severityValue": "AUDIT_FAILURE"
       }
     }
   },
@@ -62,26 +104,109 @@ Para um Analista de SOC, a análise do JSON é fundamental para entender os camp
     "description": "Multiple Windows logon failures.",
     "id": "60204",
     "mitre": {
-      "technique": ["Brute Force"],
       "id": ["T1110"],
-      "tactic": ["Credential Access"]
+      "technique": ["Brute Force"]
     }
-  },
-  "@timestamp": "2026-03-28T14:21:37.733Z"
+  }
 }
+```
 
-## 🛠️ Engenharia de Detecção (Customização de Rules)
-Um dos grandes desafios deste projeto foi a criação de uma regra personalizada no local_rules.xml para elevar a criticidade do evento de Nível 10 para o Nível 12 (Crítico).
+---
 
-## 🔧 Desafios de Troubleshooting
-Durante a implementação, enfrentei erros de sintaxe XML que impediram o reinício do serviço do Wazuh. A resolução envolveu o uso de ferramentas de diagnóstico do sistema (wazuh-analysisd -t) e correção de tags de fechamento.
+# ⚙️ Regra Personalizada
 
-## ✅ Validação Final (Wazuh-Logtest)
-Utilizando a ferramenta wazuh-logtest, confirmei que o motor de análise agora identifica o ataque sob a nova regra ID 100001 com Level 12, garantindo prioridade máxima no monitoramento e alertas vermelhos no Dashboard.
+Uma regra personalizada foi criada no arquivo:
 
-##📈 Próximos Passos
-[ ] Active Response: Configurar o bloqueio automático (ban) do IP do atacante no Firewall do Windows.
+```
+/var/ossec/etc/rules/local_rules.xml
+```
 
-[ ] Sysmon Integration: Refinar a visibilidade de processos e eventos de rede no Windows.
+Objetivos:
 
-[ ] Continuous Learning: Continuar o aprofundamento em plataformas como TryHackMe e LetsDefend para novos cenários de ameaças.
+- elevar o alerta para Level 12
+- destacar ataques críticos
+- facilitar automações futuras
+- aumentar a prioridade para analistas SOC
+
+Exemplo:
+
+```xml
+<rule id="100001" level="12">
+    <if_matched_sid>18130</if_matched_sid>
+    <description>ALERTA CRÍTICO - Ataque Brute Force Detectado</description>
+
+    <mitre>
+        <id>T1110</id>
+    </mitre>
+</rule>
+```
+
+---
+
+# ✅ Validação
+
+Após criar a regra personalizada foram realizados testes utilizando:
+
+```
+wazuh-logtest
+```
+
+Resultado:
+
+- regra carregada corretamente
+- alerta elevado para Level 12
+- evento identificado automaticamente
+
+---
+
+# 🛠️ Tecnologias Utilizadas
+
+- Wazuh
+- Ubuntu Server
+- Windows 10
+- Kali Linux
+- Hydra
+- XML Rules
+- MITRE ATT&CK
+- Syslog
+- Elastic Stack
+- Linux
+
+---
+
+# 📈 Resultados Obtidos
+
+✔ Instalação completa do Wazuh
+
+✔ Configuração do Agent Windows
+
+✔ Simulação de ataque real
+
+✔ Detecção automática
+
+✔ Correlação MITRE ATT&CK
+
+✔ Criação de regra personalizada
+
+✔ Validação utilizando Logtest
+
+✔ Dashboard funcional
+
+---
+
+# 🚀 Próximos Passos
+
+- [ ] Active Response para bloqueio automático do IP atacante
+- [ ] Integração com Sysmon
+- [ ] Integração com VirusTotal
+- [ ] Alertas via Telegram
+- [ ] Dashboard customizado
+- [ ] Automatização da resposta ao incidente
+
+---
+
+# ⚠️ Aviso
+
+Este laboratório foi desenvolvido exclusivamente para fins educacionais, estudos em Segurança da Informação e composição de portfólio.
+
+Nenhum ambiente de produção foi utilizado e nenhuma informação sensível foi exposta.
